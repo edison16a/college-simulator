@@ -17,6 +17,7 @@ function toDataUrl(file: File): Promise<string> {
 
 const ROUNDS: DecisionRound[] = [
   "Early Decision",
+  "Early Decision II",
   "Early Action",
   "Restrictive Early Action",
   "Regular Decision",
@@ -36,6 +37,8 @@ export default function HomePage() {
   const [logoUrl, setLogoUrl] = useState("");
   const [logoMode, setLogoMode] = useState<"none" | "file" | "url">("none");
   const [fileName, setFileName] = useState<string>("");
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
   const safeCfg = useMemo(() => cfg, [cfg]);
 
@@ -47,6 +50,14 @@ export default function HomePage() {
       logo,
     });
   };
+
+  const preloadImage = (url: string) =>
+    new Promise<void>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("Image failed to load"));
+      img.src = url;
+    });
 
   const start = () => {
     // Force acknowledgement gate to be reset each run
@@ -99,6 +110,8 @@ export default function HomePage() {
                     applyLogo({ kind: "none" });
                     setFileName("");
                     setLogoUrl("");
+                    setLogoPreview(null);
+                    setLogoError(null);
                   }}
                 >
                   None
@@ -106,7 +119,11 @@ export default function HomePage() {
                 <button
                   type="button"
                   className={`segBtn ${logoMode === "file" ? "isActive" : ""}`}
-                  onClick={() => setLogoMode("file")}
+                  onClick={() => {
+                    setLogoMode("file");
+                    setLogoPreview(null);
+                    setLogoError(null);
+                  }}
                 >
                   Upload file
                 </button>
@@ -147,16 +164,49 @@ export default function HomePage() {
                   <button
                     type="button"
                     className="btn"
-                    onClick={() => {
-                      if (!logoUrl.trim()) return;
-                      applyLogo({ kind: "url", url: logoUrl.trim() });
+                    onClick={async () => {
+                      const trimmed = logoUrl.trim();
+                      if (!trimmed) return;
+                      setLogoError(null);
+                      try {
+                        await preloadImage(trimmed);
+                        applyLogo({ kind: "url", url: trimmed });
+                        setLogoPreview(trimmed);
+                      } catch (err) {
+                        setLogoError("Image could not be loaded. Please check the link.");
+                      }
                     }}
                   >
                     Apply logo link
                   </button>
+                  {logoError && (
+                    <div className="helpText" style={{ color: "#b31b1b", fontWeight: 600 }}>
+                      {logoError}
+                    </div>
+                  )}
                   <div className="helpText">
                     Use a direct image URL (ends in .png/.jpg/.svg). This is only for display.
                   </div>
+                  {logoPreview && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span className="muted" style={{ fontSize: 13 }}>
+                        Preview:
+                      </span>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={logoPreview}
+                        alt="Logo preview"
+                        style={{
+                          width: 90,
+                          height: 90,
+                          objectFit: "contain",
+                          borderRadius: 12,
+                          border: "1px solid rgba(11,18,32,0.14)",
+                          background: "#fff",
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
               )}
             </div>

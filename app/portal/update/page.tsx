@@ -6,6 +6,8 @@ import PortalShell from "../../../components/PortalShell";
 import { useRouter } from "next/navigation";
 import type { SimConfig } from "../../../lib/types";
 
+type Signer = { name: string; signature: string; position: string };
+
 type ConfettiPiece = {
   id: string;
   left: number;
@@ -34,13 +36,38 @@ function formatLongDate(d: Date) {
   return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
 }
 
-function signatureBlock(collegeName: string) {
+const SIGNATURE_NAMES: string[] = [
+  "Lisa Nishii",
+  "David Morales",
+  "Katherine Liu",
+  "Anita Shah",
+  "Marcus Ellison",
+  "Priya Raman",
+  "Jordan Kim",
+  "Elena Rossi",
+  "Samuel Porter",
+  "Natalie Greene",
+];
+
+const SIGNATURE_POSITIONS: string[] = [
+  "Senior Vice Provost for Enrollment Management and Undergraduate Education",
+  "Dean of Undergraduate Admissions",
+  "Vice President for Enrollment",
+  "Director of Admissions",
+  "Associate Vice Provost for Student Success",
+];
+
+function pickRandom<T>(list: T[]): T {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function signatureBlock(collegeName: string, signer: Signer) {
   return (
     <div className="letterSignature">
-      <div className="signatureScript">Lisa Nishii</div>
+      <div className="signatureScript">{signer.signature}</div>
       <div className="signatureLine" />
-      <div className="sigName">Lisa Nishii</div>
-      <div className="muted">Senior Vice Provost for Enrollment Management and Undergraduate Education</div>
+      <div className="sigName">{signer.name}</div>
+      <div className="muted">{signer.position}</div>
       <div className="muted">{collegeName}</div>
     </div>
   );
@@ -61,6 +88,17 @@ export default function UpdatePage() {
   const safeCfg = useMemo(() => cfg, [cfg]);
   const [confetti, setConfetti] = useState<ConfettiPiece[]>([]);
   const letterRef = useRef<HTMLDivElement | null>(null);
+  const signer = useMemo<Signer>(
+    () => {
+      const name = pickRandom(SIGNATURE_NAMES);
+      return {
+        name,
+        signature: name,
+        position: pickRandom(SIGNATURE_POSITIONS),
+      };
+    },
+    []
+  );
 
   useEffect(() => {
     if (!safeCfg) return;
@@ -70,8 +108,6 @@ export default function UpdatePage() {
       return () => clearTimeout(t);
     }
   }, [safeCfg]);
-
-  if (!safeCfg) return null;
 
   const now = new Date();
   const dateStr = formatLongDate(now);
@@ -84,6 +120,8 @@ export default function UpdatePage() {
       node.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 50);
   }, []);
+
+  if (!safeCfg) return null;
 
   const body =
     safeCfg.outcome === "accepted"
@@ -199,7 +237,7 @@ export default function UpdatePage() {
 
               {body}
 
-              {signatureBlock(safeCfg.collegeName)}
+              {signatureBlock(safeCfg.collegeName, signer)}
             </div>
           </div>
         </div>

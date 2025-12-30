@@ -20,22 +20,19 @@ export const SimContext = createContext<SimContextValue>({
 });
 
 function defaultConfig(): SimConfig {
-  const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, "0");
-  const dd = String(now.getDate()).padStart(2, "0");
-  const yyyy = String(now.getFullYear());
+  const createdAt = new Date();
 
   return {
     collegeName: "Example University",
     logo: { kind: "none" },
     applicantName: "Student Applicant",
     decisionRound: "Regular Decision",
-    entryYear: `Fall ${yyyy}`,
+    entryYear: "Fall 2026",
     major: "Undeclared",
     outcome: "accepted",
     theme: buildThemeFromPrimary("#1d4ed8"),
     acknowledgedNoRealCredentials: false,
-    createdAtISO: new Date().toISOString(),
+    createdAtISO: createdAt.toISOString(),
   };
 }
 

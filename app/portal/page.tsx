@@ -5,6 +5,7 @@ import { SimContext } from "../providers";
 import PortalShell from "../../components/PortalShell";
 import { useRouter } from "next/navigation";
 import type { PortalChecklistItem, PortalProfile } from "../../lib/types";
+import greenCheck from "./green.png";
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
@@ -29,8 +30,8 @@ function buildChecklist(date: string): PortalChecklistItem[] {
     { label: "Standardized Testing (if provided)", status: "Received", receivedDate: date },
     { label: "Counselor Recommendation", status: "Received", receivedDate: date },
     { label: "School Report", status: "Received", receivedDate: date },
-    { label: "Teacher Evaluation — First", status: "Received", receivedDate: date },
-    { label: "Teacher Evaluation — Second", status: "Received", receivedDate: date },
+    { label: "Teacher Evaluation - First", status: "Received", receivedDate: date },
+    { label: "Teacher Evaluation - Second", status: "Received", receivedDate: date },
   ];
 }
 
@@ -45,7 +46,7 @@ function buildProfile(name: string): PortalProfile {
     applicantId: Math.floor(10000000 + Math.random() * 89999999).toString(),
     email,
     addressLine1: "4929 College St.",
-    cityStateZip: "United States of America 92202",
+    cityStateZip: "Zip Code: 92202",
     country: "United States of America",
   };
 }
@@ -84,38 +85,35 @@ export default function PortalPage() {
         </div>
       </div>
 
-      <div className="portalPageHeader">
-        <div>
-          <h1 className="portalH1">Application Checklist</h1>
-          <p className="portalLead">
-            Review your submitted materials and any additional items we may request.
-          </p>
-        </div>
-      </div>
+      
 
       <div className="portalGrid">
         <section className="portalCard">
-          <div className="portalCard__titleRow">
-            <h2 className="portalH2">Application Checklist</h2>
-            <div className="muted mono">Last refreshed: {receivedDate}</div>
-          </div>
-
+          
+          <div className="portalPageHeader">
+        <div>
+          <h1 className="portalH1">Application Checklist</h1>
+          <br></br>
+        </div>
+      </div>
           <div className="tableWrap" role="region" aria-label="Application checklist table">
             <table className="table">
               <thead>
                 <tr>
-                  <th>Status Item</th>
-                  <th>Status</th>
-                  <th>Date Received</th>
+                  <th className="statusHeader">Status</th>
+                  <th>Details</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
                 {checklist.map((it) => (
                   <tr key={it.label}>
-                    <td>{it.label}</td>
-                    <td>
-                      <span className="statusTag statusTag--ok">{it.status}</span>
+                    <td className="statusCell">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={greenCheck.src} alt="" className="statusCheck" />
+                      <span>{it.status}</span>
                     </td>
+                    <td className="detailCell">{it.label}</td>
                     <td className="mono">{it.receivedDate}</td>
                   </tr>
                 ))}
@@ -126,7 +124,7 @@ export default function PortalPage() {
           <div className="portalCard__sub">
             <h3 className="portalH3">Upload Materials</h3>
             <p className="muted">
-              This area is included for realism. In a real portal, uploads are only used for items a school requests.
+              This area is included to upload additional documents.
             </p>
             <div className="uploadRow">
               <select className="textInput">
@@ -161,7 +159,7 @@ export default function PortalPage() {
               </div>
               <div className="profileRow">
                 <div className="muted">Entry Term</div>
-                <div className="mono">{safeCfg.entryYear} — {safeCfg.decisionRound}</div>
+                <div className="mono">{safeCfg.entryYear} - {safeCfg.decisionRound}</div>
               </div>
               <div className="profileRow">
                 <div className="muted">Major</div>
@@ -204,6 +202,11 @@ export default function PortalPage() {
                 </a>
               </li>
             </ul>
+          </section>
+
+          <section className="portalCard">
+            <h2 className="portalH2">Resources</h2>
+            
             <div className="resourceContact">
               <div className="footerTitle">Need help?</div>
               <div className="muted">Call <span className="mono">(680) 212-5282</span></div>
@@ -214,6 +217,7 @@ export default function PortalPage() {
               <div className="muted">Privacy Policy | Accessibility</div>
             </div>
           </section>
+          
         </aside>
       </div>
     </PortalShell>

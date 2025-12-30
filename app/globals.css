@@ -294,14 +294,16 @@ button { font-family: inherit; }
 .loginTopBtn--sm { font-size: 14px; text-transform: none; letter-spacing: 0; padding: 8px 4px; }
 .loginTopBtn--lg { font-size: 20px; text-transform: none; padding: 10px 6px; }
 .loginTopBtn--primary {
-  background: #b31b1b;
+  background: var(--brand);
   color: #fff;
   font-size: 16px;
   padding: 12px 22px;
   letter-spacing: 0.6px;
+  border-color: var(--brand);
 }
 .loginTopBtn:hover { color: #0b1220; }
-.loginTopBtn--primary:hover { background: #971616; color: #fff; }
+.loginTopBtn--primary:hover { background: var(--brandHover); border-color: var(--brandHover); color: #fff; }
+.loginTopBtn--primary:active { background: var(--brandActive); border-color: var(--brandActive); }
 .loginTopDivider {
   width: 1px;
   height: 34px;
@@ -366,7 +368,7 @@ button { font-family: inherit; }
 .loginClassicSubmit {
   width: 200px;
   padding: 16px 20px;
-  background: #b31b1b;
+  background: var(--brand);
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -375,8 +377,8 @@ button { font-family: inherit; }
   text-transform: uppercase;
   cursor: pointer;
 }
-.loginClassicSubmit:hover { background: #971616; }
-.loginClassicSubmit:active { background: #7c1212; }
+.loginClassicSubmit:hover { background: var(--brandHover); }
+.loginClassicSubmit:active { background: var(--brandActive); }
 
 .logoFallback {
   width: 42px; height: 42px;
@@ -448,7 +450,7 @@ button { font-family: inherit; }
 .portalTopBar__brand { display: flex; gap: 14px; align-items: center; }
 .portalLogo {
   width: 86px; height: 86px; object-fit: contain;
-  border-radius: 14px;
+  border-radius: 0;
   border: 1px solid rgba(11,18,32,0.10);
   background: #fff;
 }
@@ -459,7 +461,7 @@ button { font-family: inherit; }
 .portalTopBar__userPills { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .pill {
   padding: 8px 12px;
-  border-radius: 999px;
+  border-radius: 0;
   border: 1px solid rgba(11,18,32,0.14);
   background: #fff;
   font-size: 13px;
@@ -490,7 +492,7 @@ button { font-family: inherit; }
 .tabItem {
   font-size: 13px;
   padding: 10px 12px;
-  border-radius: 8px;
+  border-radius: 0;
   border: 1px solid rgba(11,18,32,0.16);
   background: #f8f9fb;
 }
@@ -591,8 +593,8 @@ button { font-family: inherit; }
   min-width: 280px;
   background: #fff;
   border: 1px solid rgba(11,18,32,0.12);
-  border-radius: 16px;
-  box-shadow: var(--shadowSoft);
+  border-radius: 0;
+  box-shadow: none;
   padding: 14px;
 }
 .portalCTABox__title { font-weight: 900; }
@@ -614,11 +616,13 @@ button { font-family: inherit; }
   gap: 16px;
   align-items: start;
 }
+.portalRoot .btn { border-radius: 0; }
+.portalRoot .textInput, .portalRoot select.textInput { border-radius: 0; }
 .portalCard {
   background: #fff;
   border: 1px solid rgba(11,18,32,0.10);
-  border-radius: 16px;
-  box-shadow: var(--shadowSoft);
+  border-radius: 0;
+  box-shadow: none;
   padding: 14px;
 }
 .portalCard__titleRow {
@@ -631,39 +635,37 @@ button { font-family: inherit; }
 }
 .portalCard__sub { margin-top: 12px; border-top: 1px solid rgba(11,18,32,0.08); padding-top: 10px; }
 
-.tableWrap { overflow: auto; border-radius: 14px; border: 1px solid rgba(11,18,32,0.10); }
+.tableWrap { overflow: auto; border-radius: 0; border: 1px solid #cfd3d8; }
 .table { width: 100%; border-collapse: collapse; min-width: 560px; }
-.table th, .table td { padding: 10px 10px; font-size: 13px; border-bottom: 1px solid rgba(11,18,32,0.08); }
-.table th { text-align: left; background: rgba(11,18,32,0.03); font-weight: 800; }
+.table th, .table td { padding: 11px 12px; font-size: 18px; border-bottom: 1px solid #dcdfe3; }
+.table th { text-align: left; background: #e6e8ec; font-weight: 900; color: #234f89; text-transform: uppercase; letter-spacing: 0.3px; }
 .table tr:last-child td { border-bottom: none; }
+.table th:first-child, .table td:first-child { padding-right: 6px; }
+.table th:nth-child(2), .table td:nth-child(2) { padding-left: 8px; }
+.statusHeader { padding-left: 12px; }
+.statusHeader::before {
+  content: "";
+  display: inline-block;
+  width: 26px; /* matches check width + gap to align text */
+}
 
-.statusTag {
-  display: inline-flex;
-  font-size: 12px;
-  padding: 5px 9px;
-  border-radius: 999px;
-  border: 1px solid rgba(11,18,32,0.14);
-  font-weight: 800;
-}
-.statusTag--ok {
-  background: color-mix(in srgb, #10b981 12%, #fff);
-  border-color: color-mix(in srgb, #10b981 30%, rgba(11,18,32,0.14));
-  color: color-mix(in srgb, #065f46 70%, #000 0%);
-}
+.statusCell { display: flex; align-items: center; gap: 6px; font-weight: 700; }
+.statusCheck { width: 18px; height: 18px; object-fit: contain; }
+.detailCell { font-size: 14px; color: #0b1220; }
 
 .uploadRow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 .portalSide { display: flex; flex-direction: column; gap: 14px; }
 .uploadRow input[type="file"] {
   padding: 6px 10px;
   border: 1px solid rgba(11,18,32,0.16);
-  border-radius: 10px;
+  border-radius: 0;
   background: #fff;
 }
 .uploadRow input[type="file"]::file-selector-button {
   margin-right: 10px;
   padding: 8px 12px;
   border: 1px solid rgba(11,18,32,0.22);
-  border-radius: 8px;
+  border-radius: 0;
   background: color-mix(in srgb, var(--brand) 10%, #fff);
   color: rgba(11,18,32,0.82);
   cursor: pointer;
@@ -673,6 +675,8 @@ button { font-family: inherit; }
   background: color-mix(in srgb, var(--brand) 16%, #fff);
   border-color: color-mix(in srgb, var(--brand) 30%, rgba(11,18,32,0.22));
 }
+.portalRoot .logoFallback { border-radius: 0; }
+.portalRoot .logoFallback__mark { border-radius: 0; }
 
 .profileGrid { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
 .profileRow { display: grid; grid-template-columns: 92px 1fr; gap: 10px; font-size: 13px; }
@@ -710,8 +714,8 @@ button { font-family: inherit; }
 .letterCard {
   background: #fff;
   border: 1px solid rgba(11,18,32,0.10);
-  border-radius: 18px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12);
+  border-radius: 0;
+  box-shadow: none;
   overflow: hidden;
   width: min(1580px, 99%);
   margin: 0 auto;
@@ -721,21 +725,21 @@ button { font-family: inherit; }
   align-items: center;
   justify-content: space-between;
   padding: 30px 36px;
-  background: linear-gradient(90deg, color-mix(in srgb, var(--brand) 12%, #fff), #fff 65%);
+  background: #fff;
   border-bottom: 1px solid rgba(11,18,32,0.10);
 }
 .letterBrand { display: flex; align-items: center; gap: 12px; }
 .letterLogo {
   width: 56px; height: 56px; object-fit: contain;
-  border-radius: 14px;
+  border-radius: 0;
   border: 1px solid rgba(11,18,32,0.10);
   background: #fff;
 }
 .letterLogoFallback {
   width: 56px; height: 56px;
-  border-radius: 14px;
+  border-radius: 0;
   border: 1px solid rgba(11,18,32,0.12);
-  background: linear-gradient(180deg, #fff, #f3f4f6);
+  background: #fff;
 }
 .letterCollege { font-weight: 950; letter-spacing: -0.3px; font-size: 18px; }
 .letterBody { padding: 52px 64px; font-size: 18px; }

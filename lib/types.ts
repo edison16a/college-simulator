@@ -2,6 +2,7 @@ export type DecisionOutcome = "accepted" | "rejected" | "deferred";
 
 export type DecisionRound =
   | "Early Decision"
+  | "Early Decision II"
   | "Early Action"
   | "Regular Decision"
   | "Rolling"
