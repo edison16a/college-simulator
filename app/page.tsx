@@ -1,65 +1,258 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import React, { useContext, useMemo, useState } from "react";
+import { SimContext } from "./providers";
+import type { DecisionOutcome, DecisionRound, LogoConfig } from "../lib/types";
+import ColorPickerAdvanced from "../components/ColorPickerAdvanced";
+import { useRouter } from "next/navigation";
+
+function toDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(new Error("Failed to read file"));
+    r.readAsDataURL(file);
+  });
+}
+
+const ROUNDS: DecisionRound[] = [
+  "Early Decision",
+  "Early Action",
+  "Restrictive Early Action",
+  "Regular Decision",
+  "Rolling",
+];
+
+const OUTCOMES: { value: DecisionOutcome; label: string }[] = [
+  { value: "accepted", label: "Accepted" },
+  { value: "rejected", label: "Rejected" },
+  { value: "deferred", label: "Deferred" },
+];
+
+export default function HomePage() {
+  const { cfg, setCfg } = useContext(SimContext);
+  const router = useRouter();
+
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoMode, setLogoMode] = useState<"none" | "file" | "url">("none");
+  const [fileName, setFileName] = useState<string>("");
+
+  const safeCfg = useMemo(() => cfg, [cfg]);
+
+  if (!safeCfg) return null;
+
+  const applyLogo = (logo: LogoConfig) => {
+    setCfg({
+      ...safeCfg,
+      logo,
+    });
+  };
+
+  const start = () => {
+    // Force acknowledgement gate to be reset each run
+    setCfg({
+      ...safeCfg,
+      acknowledgedNoRealCredentials: false,
+    });
+    router.push("/login");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <main className="homeRoot">
+      <div className="homeContainer">
+        <header className="homeHeader">
+          <div className="homeTitleRow">
+            <div>
+              <h1 className="homeTitle">College Decision Portal</h1>
+              <p className="homeSubtitle">
+                Build a realistic applicant portal and decision letter experience.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <section className="card">
+          <h2 className="cardTitle">1) School branding</h2>
+
+          <div className="grid2">
+            <div className="field">
+              <label className="fieldLabel">College name (display only)</label>
+              <input
+                className="textInput"
+                value={safeCfg.collegeName}
+                onChange={(e) => setCfg({ ...safeCfg, collegeName: e.target.value })}
+                placeholder="Example University"
+              />
+              <div className="helpText">
+                Tip: Use a fictional name if you plan to share screenshots publicly.
+              </div>
+            </div>
+
+            <div className="field">
+              <label className="fieldLabel">Logo</label>
+              <div className="segmented">
+                <button
+                  type="button"
+                  className={`segBtn ${logoMode === "none" ? "isActive" : ""}`}
+                  onClick={() => {
+                    setLogoMode("none");
+                    applyLogo({ kind: "none" });
+                    setFileName("");
+                    setLogoUrl("");
+                  }}
+                >
+                  None
+                </button>
+                <button
+                  type="button"
+                  className={`segBtn ${logoMode === "file" ? "isActive" : ""}`}
+                  onClick={() => setLogoMode("file")}
+                >
+                  Upload file
+                </button>
+                <button
+                  type="button"
+                  className={`segBtn ${logoMode === "url" ? "isActive" : ""}`}
+                  onClick={() => setLogoMode("url")}
+                >
+                  Use link
+                </button>
+              </div>
+
+              {logoMode === "file" && (
+                <div className="stack">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      const dataUrl = await toDataUrl(f);
+                      setFileName(f.name);
+                      applyLogo({ kind: "dataUrl", dataUrl, filename: f.name });
+                    }}
+                  />
+                  {fileName && <div className="muted">Selected: {fileName}</div>}
+                </div>
+              )}
+
+              {logoMode === "url" && (
+                <div className="stack">
+                  <input
+                    className="textInput"
+                    value={logoUrl}
+                    onChange={(e) => setLogoUrl(e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                  />
+                  <button
+                    type="button"
+                    className="btn"
+                    onClick={() => {
+                      if (!logoUrl.trim()) return;
+                      applyLogo({ kind: "url", url: logoUrl.trim() });
+                    }}
+                  >
+                    Apply logo link
+                  </button>
+                  <div className="helpText">
+                    Use a direct image URL (ends in .png/.jpg/.svg). This is only for display.
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="fieldLabel">Theme color</label>
+            <ColorPickerAdvanced
+              value={safeCfg.theme}
+              onChange={(theme) => setCfg({ ...safeCfg, theme })}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          </div>
+        </section>
+
+        <section className="card">
+          <h2 className="cardTitle">2) Applicant inputs</h2>
+
+          <div className="grid2">
+            <div className="field">
+              <label className="fieldLabel">Applicant name</label>
+              <input
+                className="textInput"
+                value={safeCfg.applicantName}
+                onChange={(e) => setCfg({ ...safeCfg, applicantName: e.target.value })}
+                placeholder="Student Applicant"
+              />
+            </div>
+
+            <div className="field">
+              <label className="fieldLabel">Major</label>
+              <input
+                className="textInput"
+                value={safeCfg.major}
+                onChange={(e) => setCfg({ ...safeCfg, major: e.target.value })}
+                placeholder="Computer Science"
+              />
+            </div>
+
+            <div className="field">
+              <label className="fieldLabel">Decision round</label>
+              <select
+                className="textInput"
+                value={safeCfg.decisionRound}
+                onChange={(e) => setCfg({ ...safeCfg, decisionRound: e.target.value as DecisionRound })}
+              >
+                {ROUNDS.map((r) => (
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="field">
+              <label className="fieldLabel">Entry term / year</label>
+              <input
+                className="textInput"
+                value={safeCfg.entryYear}
+                onChange={(e) => setCfg({ ...safeCfg, entryYear: e.target.value })}
+                placeholder="Fall 2026"
+              />
+            </div>
+          </div>
+
+          <div className="field">
+            <label className="fieldLabel">Decision outcome</label>
+            <div className="segmented">
+              {OUTCOMES.map((o) => (
+                <button
+                  key={o.value}
+                  type="button"
+                  className={`segBtn ${safeCfg.outcome === o.value ? "isActive" : ""}`}
+                  onClick={() => setCfg({ ...safeCfg, outcome: o.value })}
+                >
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="card">
+          <h2 className="cardTitle">3) Start</h2>
+          <p className="muted">You’ll see the applicant portal login screen next.</p>
+          <div className="actionsRow">
+            <button className="btn btn--primary" type="button" onClick={start}>
+              Open portal
+            </button>
+            <a className="linkLike" href="/portal" onClick={(e) => { e.preventDefault(); router.push("/portal"); }}>
+              Jump to portal (debug)
+            </a>
+          </div>
+        </section>
+
+        <footer className="homeFooter" />
+      </div>
+    </main>
   );
 }
